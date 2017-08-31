@@ -9,4 +9,3 @@
 #endif
 
 #include "BitSet/BitSet.h"
-#include "StringPacking/StringPacking.h"

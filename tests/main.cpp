@@ -10,15 +10,17 @@ TEST(BitPackingTests, BitSetTest1) {
 	bitset.pushFloat<32, 42, 3>(36.5413f);
 	bitset.pushInt<0, 100>(99);
 	bitset.pushBool(true);
+	bitset.pushString<100>("foo bar foo bar foo bar");
 	bitset.pushInt<0, 100>(84);
 	bitset.pushInt<0, 100>(1);
 	bitset.pushBool(false);
 	bitset.pushBool(false);
 	bitset.pushBool(true);
 	bitset.pushInt<0, 100>(0);
+	bitset.pushFloat<-600, -500, 3>(-584.514f);
 
-	EXPECT_EQ(bitset.getSizeInBytes(), 16);
-	EXPECT_EQ(bitset.getTotalBitsSet(), 76);
+	EXPECT_EQ(bitset.getSizeInBytes(), 37);
+	EXPECT_EQ(bitset.getTotalBitsSet(), 289);
 
 	auto foo = bitset.popFloat<-5, 5, 1>();
 	EXPECT_NEAR(foo, 3.1f, 0.1f);
@@ -32,6 +34,7 @@ TEST(BitPackingTests, BitSetTest1) {
 	EXPECT_EQ(foo, 99);
 	bool fooBool = bitset.popBool();
 	EXPECT_TRUE(fooBool);
+	EXPECT_EQ(bitset.popString<100>(), "foo bar foo bar foo bar");
 	foo = bitset.popInt<0, 100>();
 	EXPECT_EQ(foo, 84);
 	foo = bitset.popInt<0, 100>();
@@ -44,6 +47,38 @@ TEST(BitPackingTests, BitSetTest1) {
 	EXPECT_TRUE(fooBool);
 	foo = bitset.popInt<0, 100>();
 	EXPECT_EQ(foo, 0);
+	foo = bitset.popFloat<-600, -500, 3>();
+	EXPECT_NEAR(foo, -584.514f, 0.001f);
+
+	bit_packing::BitSet bitset2(bitset.getPackedData());
+
+	foo = bitset2.popFloat<-5, 5, 1>();
+	EXPECT_NEAR(foo, 3.1f, 0.1f);
+	foo = bitset2.popFloat<-5000, 0, 1>();
+	EXPECT_NEAR(foo, -3141.6f, 0.1f);
+	foo = bitset2.popInt<-100, 0>();
+	EXPECT_EQ(foo, -51);
+	foo = bitset2.popFloat<32, 42, 3>();
+	EXPECT_NEAR(foo, 36.541f, 0.001f);
+	foo = bitset2.popInt<0, 100>();
+	EXPECT_EQ(foo, 99);
+	fooBool = bitset2.popBool();
+	EXPECT_TRUE(fooBool);
+	EXPECT_EQ(bitset2.popString<100>(), "foo bar foo bar foo bar");
+	foo = bitset2.popInt<0, 100>();
+	EXPECT_EQ(foo, 84);
+	foo = bitset2.popInt<0, 100>();
+	EXPECT_EQ(foo, 1);
+	fooBool = bitset2.popBool();
+	EXPECT_FALSE(fooBool);
+	fooBool = bitset2.popBool();
+	EXPECT_FALSE(fooBool);
+	fooBool = bitset2.popBool();
+	EXPECT_TRUE(fooBool);
+	foo = bitset2.popInt<0, 100>();
+	EXPECT_EQ(foo, 0);
+	foo = bitset2.popFloat<-600, -500, 3>();
+	EXPECT_NEAR(foo, -584.514f, 0.001f);
 }
 
 TEST(BitPackingTests, BitSetTest2) {
@@ -52,7 +87,7 @@ TEST(BitPackingTests, BitSetTest2) {
 	bitset.pushFloat<-5000, 5000, 2>(684.541f);
 	bitset.pushFloat<0, 300, 2>(250.585f);
 
-	EXPECT_EQ(bitset.getSizeInBytes(), 8);
+	EXPECT_EQ(bitset.getSizeInBytes(), 7);
 	EXPECT_EQ(bitset.getTotalBitsSet(), 55);
 
 	auto foo = bitset.popFloat<-5000, 5000, 2>();
