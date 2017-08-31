@@ -21,9 +21,19 @@ namespace bit_packing {
 		if (value < float(minValue) || value > float(maxValue)) {
 			throw std::runtime_error("packFloat out-of-bounds.");
 		}
+		bitCount = getBitCount<minValue, maxValue, precision>();
+		if (bitCount >= 32) { //fallback: bitCount too high, give up packing data;
+			std::cout << "Warning: Following minValue, maxValue, precision combination: " <<
+				minValue << ", " << maxValue << ", " << precision << " generates a bit count too high.\n";
+			std::cout << "Float bit count: 32. Computed bit count: " << bitCount << ".\n";
+			std::cout << "Try bringing minValue and maxValue closer to each other and/or reducing the precision.\n";
+			bitCount = 32;
+			uint32 result;
+			memcpy(&result, &value, 4);
+			return result;
+		}
 		float floatStep = getFloatStep<precision>();
 		uint32 result = uint32(roundf((value - float(minValue))/floatStep));
-		bitCount = getBitCount<minValue, maxValue, precision>();
 		uint32 maxUint((1 << bitCount) - 1);
 		return result & maxUint;
 	}
@@ -31,6 +41,12 @@ namespace bit_packing {
 	template<int minValue, int maxValue, int precision>
 	static float unpackFloat(uint32 value, int& bitCount) {
 		bitCount = getBitCount<minValue, maxValue, precision>();
+		if (bitCount >= 32) { //fallback: bitCount too high, it gave up packing data;
+			bitCount = 32;
+			float result;
+			memcpy(&result, &value, 4);
+			return result;
+		}
 		uint32 maxUint((1 << bitCount) - 1);
 		value &= maxUint;
 		float floatStep = getFloatStep<precision>();
