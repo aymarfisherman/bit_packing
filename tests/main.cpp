@@ -154,7 +154,7 @@ TEST(BitPackingTests, FloatPackingTest4) {
 	float foo = 3.1415f;
 	int packBitCount;
 	auto bits = bit_packing::packFloat<-10000, 10000, 10>(foo, packBitCount);
-	EXPECT_EQ(packBitCount, 7);
+	EXPECT_EQ(packBitCount, 32);
 
 	int unpackBitCount;
 	auto bar = bit_packing::unpackFloat<-10000, 10000, 10>(bits, unpackBitCount);
