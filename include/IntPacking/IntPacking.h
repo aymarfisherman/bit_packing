@@ -11,7 +11,9 @@ namespace bit_packing {
 	template<int minValue, int maxValue>
 	static uint32 packInt(int value, int& bitCount) {
 		if (value < minValue || value > maxValue) {
-			throw std::runtime_error("packInt out-of-bounds.");
+			std::stringstream stream;
+			stream << "packInt out of bounds: minValue=" << minValue << "; maxValue=" << maxValue << "; value=" << value << ";";
+			throw std::runtime_error(stream.str());
 		}
 		uint32 result = uint32(value - minValue);
 		bitCount = getBitCount<minValue, maxValue>();

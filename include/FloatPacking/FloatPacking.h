@@ -19,7 +19,9 @@ namespace bit_packing {
 	template<int minValue, int maxValue, int precision>
 	static uint32 packFloat(float value, int& bitCount) {
 		if (value < float(minValue) || value > float(maxValue)) {
-			throw std::runtime_error("packFloat out-of-bounds.");
+			std::stringstream stream;
+			stream << "packFloat out of bounds: minValue=" << minValue << "; maxValue=" << maxValue << "; precision=" << precision << "; value = " << value << ";";
+			throw std::runtime_error(stream.str());
 		}
 		bitCount = getBitCount<minValue, maxValue, precision>();
 		if (bitCount >= 32) { //fallback: bitCount too high, give up packing data;
